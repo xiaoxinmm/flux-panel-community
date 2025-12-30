@@ -777,10 +777,32 @@ export default function ForwardPage() {
   // 复制到剪贴板
   const copyToClipboard = async (text: string, label: string = '内容') => {
     try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`已复制${label}`);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        toast.success(`已复制${label}`);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            toast.success(`已复制${label}`);
+          } else {
+            toast.error('复制失败');
+          }
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
     } catch (error) {
-      toast.error('复制失败');
+      console.error('复制失败:', error);
+      toast.error('复制失败,请手动复制');
     }
   };
 
