@@ -478,8 +478,33 @@ export default function NodePage() {
       const res = await getNodeInstallCommand(node.id);
       if (res.code === 0 && res.data) {
         try {
-          await navigator.clipboard.writeText(res.data);
-          toast.success('安装命令已复制到剪贴板');
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(res.data);
+            toast.success('安装命令已复制到剪贴板');
+          } else {
+            // 使用降级方案
+            const textArea = document.createElement('textarea');
+            textArea.value = res.data;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+              const successful = document.execCommand('copy');
+              if (successful) {
+                toast.success('安装命令已复制到剪贴板');
+              } else {
+                // 降级方案也失败，显示模态框
+                setInstallCommand(res.data);
+                setCurrentNodeName(node.name);
+                setInstallCommandModal(true);
+              }
+            } finally {
+              document.body.removeChild(textArea);
+            }
+          }
         } catch (copyError) {
           // 复制失败，显示安装命令模态框
           setInstallCommand(res.data);
@@ -501,10 +526,33 @@ export default function NodePage() {
   // 手动复制安装命令
   const handleManualCopy = async () => {
     try {
-      await navigator.clipboard.writeText(installCommand);
-      toast.success('安装命令已复制到剪贴板');
-      setInstallCommandModal(false);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(installCommand);
+        toast.success('安装命令已复制到剪贴板');
+        setInstallCommandModal(false);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = installCommand;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            toast.success('安装命令已复制到剪贴板');
+            setInstallCommandModal(false);
+          } else {
+            toast.error('复制失败，请手动选择文本复制');
+          }
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
     } catch (error) {
+      console.error('复制失败:', error);
       toast.error('复制失败，请手动选择文本复制');
     }
   };
