@@ -26,7 +26,7 @@
 
 ## 部署流程
 
-### Docker Compose部署
+### Docker Compose 源码构建部署
 
 #### 快速部署
 

@@ -150,8 +150,8 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --push \
-            -t bqlpfy/vite-frontend:latest \
-            -t bqlpfy/vite-frontend:${VERSION} \
+            -t xiaoxinmm/vite-frontend:latest \
+            -t xiaoxinmm/vite-frontend:${VERSION} \
             ./vite-frontend
 
   build-java:
@@ -194,8 +194,8 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --push \
-            -t bqlpfy/springboot-backend:latest \
-            -t bqlpfy/springboot-backend:${VERSION} \
+            -t xiaoxinmm/springboot-backend:latest \
+            -t xiaoxinmm/springboot-backend:${VERSION} \
             ./springboot-backend
 
   create-release:
